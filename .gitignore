@@ -1,0 +1,13 @@
+# secrets and local runtime
+.env
+/auteur
+workspaces/
+testdata/
+tools-env/
+
+# editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~

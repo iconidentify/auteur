@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auteur</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23101014'/%3E%3Cpath d='M8 24 L16 7 L24 24 h-4 l-1.6-4 h-4.8 L12 24 Z M15 17 h2 l-1-2.6 Z' fill='%23e8a33d'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <a class="wordmark" href="#/">AUTE<em>U</em>R</a>
+  <span class="prod-title" id="head-title"></span>
+  <span class="head-spacer"></span>
+  <span class="tokens" id="head-tokens"></span>
+  <span class="timecode" id="head-timecode" hidden>00:00:00</span>
+  <span class="tally" id="head-tally" hidden><span class="lamp"></span><span id="head-tally-text">standby</span></span>
+  <button class="btn danger" id="btn-cancel" hidden>Stop production</button>
+  <button class="btn primary" id="btn-start" hidden>Roll cameras</button>
+</header>
+
+<!-- Lobby: intake + call sheet -->
+<section class="view" id="view-lobby">
+  <div class="lobby">
+    <div class="lobby-head">
+      <h1>The m<em>u</em>sic is<br>the movie</h1>
+      <p>Auteur is an agentic studio. Hand it a track, reference imagery, and your
+      direction; a director agent and its crew write, shoot, cut, and master the film.</p>
+    </div>
+    <div class="lobby-grid">
+      <form class="intake" id="intake">
+        <div class="panel-label">New production</div>
+
+        <div class="mode-row" id="mode-row">
+          <label class="mode-opt"><input type="radio" name="mode" value="music-video" checked> Music video</label>
+          <label class="mode-opt"><input type="radio" name="mode" value="film"> Narrated film</label>
+        </div>
+
+        <div class="film-only" id="film-fields" hidden>
+          <textarea id="in-source" placeholder="Source text: paste the chapter, story, or passage. The words become the screenplay; a narrator and a cast of characters voice it; every shot is drawn to its line."></textarea>
+          <select id="in-style">
+            <option value="">Choose an animation style...</option>
+          </select>
+          <span class="hint" id="style-blurb"></span>
+        </div>
+
+        <label class="drop" id="drop-music">
+          <input type="file" id="file-music" accept="audio/*,.mp3,.wav,.m4a,.flac,.aac,.ogg">
+          <span class="drop-body"><span id="music-drop-title">Drop the music track here</span>
+            <span class="hint" id="music-drop-hint">mp3, wav, m4a, flac. The track is the source of the film.</span>
+          </span>
+        </label>
+
+        <label class="drop" id="drop-opening">
+          <input type="file" id="file-opening" accept="image/*">
+          <span class="drop-body">Drop the opening frame here
+            <span class="hint">Optional. The film's first shot animates outward from this exact image, and its look sets the tone for everything after.</span>
+          </span>
+        </label>
+
+        <label class="drop" id="drop-refs">
+          <input type="file" id="file-refs" accept="image/*" multiple>
+          <span class="drop-body">Drop reference images here
+            <span class="hint">Optional, any number. Subjects, props, styles, palettes for the crew to weave in; your prompt can say what each means.</span>
+          </span>
+        </label>
+
+        <input type="text" id="in-title" placeholder="Production title (defaults to the track name)">
+        <textarea id="in-prompt" placeholder="Producer's prompt: the direction the crew must follow. Genre, story, imagery, mood, what the references mean to you."></textarea>
+        <textarea id="in-lyrics" placeholder="Lyrics (optional): paste the song's words and the film will flow with them — timing comes from transcription."></textarea>
+        <button class="btn primary" type="submit" id="btn-greenlight">Greenlight production</button>
+        <span class="form-note">Greenlighting uploads the sources and opens the control room; roll cameras from there.</span>
+        <span class="form-error" id="form-error" hidden></span>
+      </form>
+
+      <div>
+        <div class="panel-label">Call sheet</div>
+        <div class="callsheet" id="callsheet">
+          <div class="empty">No productions yet. Start with a track.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Control room -->
+<section class="view" id="view-room">
+  <div class="room">
+    <aside class="crew">
+      <div class="panel-label">Crew</div>
+      <div id="crew-strips"></div>
+      <div class="crew-foot">
+        <div class="panel-label">Score</div>
+        <canvas class="score-canvas" id="score-canvas" width="400" height="112"></canvas>
+        <div class="score-caption" id="score-caption">awaiting audio analysis</div>
+      </div>
+    </aside>
+
+    <div class="feed-col">
+      <div class="producer-bar" id="producer-bar">
+        <div class="approval-box" id="approval-box" hidden>
+          <div class="approval-text"><strong id="approval-stage"></strong> <span id="approval-summary"></span></div>
+          <div class="approval-actions">
+            <button class="btn primary" id="btn-approve">Approve</button>
+            <button class="btn danger" id="btn-changes">Request changes</button>
+          </div>
+        </div>
+        <form class="note-form" id="note-form">
+          <input type="text" id="note-input" placeholder="Producer's note to the director&hellip;" autocomplete="off">
+          <button class="btn" type="submit">Send note</button>
+        </form>
+      </div>
+      <div class="feed-head">
+        <div class="panel-label">Dailies feed</div>
+        <span class="feed-filter-note" id="filter-note" hidden>
+          showing <span id="filter-role"></span> <button id="filter-clear">show all</button>
+        </span>
+      </div>
+      <div class="feed-wrap" id="feed-wrap">
+        <div class="feed" id="feed">
+          <div class="empty-stage" id="empty-stage">
+            <span class="glyph">AUTEUR</span>
+            The stage is set. Roll cameras to put the crew to work.
+          </div>
+        </div>
+        <button class="jump-live" id="jump-live">Jump to live</button>
+      </div>
+    </div>
+
+    <aside class="board-col">
+      <div class="board">
+        <div class="panel-label">Shot board</div>
+        <div class="shot-grid" id="shot-grid"></div>
+        <div class="empty" id="board-empty">Rendered frames and clips land here as the crew shoots.</div>
+      </div>
+      <div class="screening">
+        <div class="panel-label">Screening room</div>
+        <div id="screening-body"><div class="empty">The final cut premieres here</div></div>
+        <div class="screening-meta" id="screening-meta" hidden></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<div class="lightbox" id="lightbox">
+  <button class="close-x" id="lightbox-close">CLOSE [ESC]</button>
+  <div class="box">
+    <div id="lightbox-media"></div>
+    <div class="light-meta" id="lightbox-meta"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
